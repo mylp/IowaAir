@@ -3,12 +3,20 @@ import mysql.connector
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",
+    password="PepeSilvia1259#12!",
     database="mydb"
 )
 
 cursor = mydb.cursor()
 
+def generateRandomPassengers():
+    pass
+
+def generateRandomFlights():
+    pass
+        
+# How are transactions handled in Python?
+# Should they be handled in the stored procedures?
 
 def bookFlight(first_name, last_name, email, phone, flight_id, seat_id):
     cursor.callproc('bookFlight', (first_name, last_name,
@@ -26,11 +34,11 @@ def checkFlightStatus(departure_city, arrival_city, departure_date):
 
 def displayScreen():
     print("------------------------------------")
-    print("Welcome to the flight booking system")
+    print("Welcome to Iowa Air Booking System")
     print("1. Book a flight")
     print("2. Manage Trip/Check-in")
     print("3. Check flight status")
-    print("4. Exit")
+    print("4. Exit\n")
     print("Please enter your choice: ", end="")
     choice = int(input())
     return choice
