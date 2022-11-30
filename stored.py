@@ -41,6 +41,7 @@ def displayScreen():
     print("4. Exit\n")
     print("Please enter your choice: ", end="")
     choice = int(input())
+    print()
     return choice
 
 
@@ -71,6 +72,13 @@ def main():
             print("Invalid choice")
 
         choice = displayScreen()
+    
+    cursor.execute("SELECT * FROM airport")
+    a = cursor.fetchall()
+    if a:
+        for i in a:
+            print(i)
+    print()
 
 
 if __name__ == "__main__":
