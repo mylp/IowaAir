@@ -74,10 +74,10 @@ def main():
         choice = displayScreen()
     
     cursor.execute("SELECT * FROM airport")
-    a = cursor.fetchall()
-    if a:
-        for i in a:
-            print(i)
+    queries = cursor.fetchall()
+    if queries:
+        for query in queries:
+            print(query)
     print()
 
 
