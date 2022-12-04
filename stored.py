@@ -9,24 +9,39 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
+
 def generateRandomPassengers():
     pass
 
+
 def generateRandomFlights():
     pass
-        
-# How are transactions handled in Python?
-# Should they be handled in the stored procedures?
 
-def bookFlight(first_name, last_name, email, phone, flight_id, seat_id):
-    cursor.callproc('bookFlight', (first_name, last_name,
-                    email, phone, flight_id, seat_id))
 
+def bookFlight():
+    round_trip = input("Is this a round trip? (y/n): ")
+    departure_city = input("Enter the departure city: ")
+    arrival_city = input("Enter the arrival city: ")
+    departure_date = input("Enter the departure date: (yyyy/mm/dd)")
+    if round_trip == 'y':
+        return_date = input("Enter the return date: (yyyy/mm/dd)")
+    
+    passenger_count = int(input("Enter the number of passengers: "))
+    
+    flights = cursor.callproc('getFlights', (departure_city, arrival_city, departure_date, return_date, passenger_count))
+    if flights:
+        print("Available flights: ")
+        for flight in flights:
+            print(flight)
+    else:
+        print("No flights available")
 
 def manageTrip(passenger_id):
     cursor.callproc('manageTrip', (passenger_id))
 
 # Need support for checking flight status with flight id
+
+
 def checkFlightStatus(departure_city, arrival_city, departure_date):
     cursor.callproc('checkFlightStatus',
                     (departure_city, arrival_city, departure_date))
@@ -47,16 +62,11 @@ def displayScreen():
 
 def main():
     choice = displayScreen()
+
     while choice != 4:
 
         if choice == 1:
-            first = input("Enter your first name: ")
-            last = input("Enter your last name: ")
-            email = input("Enter your email: ")
-            phone = input("Enter your phone number: ")
-            flight = input("Enter the flight number: ")
-            seat = input("Enter the seat number: ")
-            bookFlight(first, last, email, phone, flight, seat)
+            bookFlight()
 
         elif choice == 2:
             passenger = input("Enter your passenger id: ")
@@ -72,7 +82,7 @@ def main():
             print("Invalid choice")
 
         choice = displayScreen()
-    
+
     cursor.execute("SELECT * FROM airport")
     queries = cursor.fetchall()
     if queries:
