@@ -29,10 +29,10 @@ def bookFlight():
                               arrival_city, departure_date, return_date, passenger_count))
 
     # Get all return flights that match and have seats available
-    #return_flights = cursor.callproc('getReturnFlights', (departure_city,
-    #                                      arrival_city, departure_date, return_date, passenger_count))
+    return_flights = cursor.callproc('getReturnFlights', (arrival_city,
+                                      departure_city, return_date, departure_date, passenger_count))
     
-    if flights:
+    if flights and return_flights:
         print("Available flights: ")
         for flight in flights:
             print(flight)
