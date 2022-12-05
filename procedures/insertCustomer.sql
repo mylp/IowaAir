@@ -1,6 +1,5 @@
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCustomer`(
-`customerID` INT,
 `fName` VARCHAR(45),
 `lName` VARCHAR(45),
 `dob` DATE,
