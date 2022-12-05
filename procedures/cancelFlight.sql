@@ -15,7 +15,7 @@ BEGIN
     DELETE FROM booking
     WHERE Transaction_transactionID = transactionID;
     
-    DELETE FROM transaction
+    DELETE FROM `transaction`
     WHERE transactionID = transactionID;
 END$$
 DELIMITER ;
