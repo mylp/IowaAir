@@ -13,7 +13,28 @@ def calculateCost(seats):
     cost = 0
     for seatID in seats:
         cost  += cursor.callproc('getSeatCost', seatID)
-    return cost 
+    return cost
+
+def create_transaction(seats, return_seats):
+    totalCost = calculateCost(seats) + calculateCost(return_seats)
+    fName = input("Enter your first name: ")
+    lName = input("Enter your last name: ")
+    email = input("Enter your email: ")
+    phone = input("Enter your phone number: ")
+    dob = input("Enter your date of birth: (yyyy/mm/dd)")
+    billing = input("Enter your billing address: ")
+    ccNo = input("Enter your credit card number: ")
+    ccExp = input("Enter your credit card expiration date: (yyyy/mm/dd)")
+    cardType = input("Enter your credit card type: ")
+    ccCVV = input("Enter your credit card CVV: ")
+
+    customerID = cursor.callproc(  # Assume this returns passenger ID
+        'insertCustomer', (fName, lName, email, phone, dob, billing, ccNo, ccExp, cardType, ccCVV))
+
+    transaction = cursor.callproc(  # Assume this returns tranasction ID
+        'createTransaction', (0, totalCost, ccNo, ccExp, cardType, ccCVV, customerID))
+
+    return transaction
 
 def bookFlight():
     round_trip = input("Is this a round trip? (y/n): ")
@@ -61,28 +82,11 @@ def bookFlight():
         for passenger in passengers:
             cursor.callproc('insertPassenger', passenger)
         
-        # Need to handle seat selection
+        # Need to handle seat selection for both departure and return
         seats = []
+        return_seats = []
 
-        # Split this to separate transaction function
-        totalCost = calculateCost(seats)
-        fName = input("Enter your first name: ")
-        lName = input("Enter your last name: ")
-        email = input("Enter your email: ")
-        phone = input("Enter your phone number: ")
-        dob = input("Enter your date of birth: (yyyy/mm/dd)")
-        billing = input("Enter your billing address: ")
-        ccNo = input("Enter your credit card number: ")
-        ccExp = input("Enter your credit card expiration date: (yyyy/mm/dd)")
-        cardType = input("Enter your credit card type: ")
-        ccCVV = input("Enter your credit card CVV: ")
-
-        customerID = cursor.callproc(  # Assume this returns passenger ID
-            'insertCustomer', (fName, lName, email, phone, dob, billing, ccNo, ccExp, cardType, ccCVV))
-
-        transaction = cursor.callproc(  # Assume this returns tranasction ID
-            'createTransaction', (0, totalCost, ccNo, ccExp, cardType, ccCVV, customerID))
-
+        transaction = create_transaction(seats, return_seats)
         cursor.callproc('updateBookingWithTransaction', transaction)
 
         confirmation = None
