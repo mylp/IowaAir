@@ -9,6 +9,11 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
+def calculateCost(seats):
+    cost = 0
+    for seatID in seats:
+        cost  += cursor.callproc('getSeatCost', seatID)
+    return cost 
 
 def bookFlight():
     round_trip = input("Is this a round trip? (y/n): ")
@@ -27,7 +32,7 @@ def bookFlight():
         for flight in flights:
             print(flight)
 
-        selection = input("Enter the flight id you want to book: ")
+        selection = input("Enter the flight ID you want to book: ")
         #selected = flights[selection]
 
         seatID = None
@@ -49,8 +54,11 @@ def bookFlight():
 
         for passenger in passengers:
             cursor.callproc('insertPassenger', passenger)
+        
+        # Need to handle seat selection
+        seats = []
 
-        totalCost = None
+        totalCost = calculateCost(seats)
         fName = input("Enter your first name: ")
         lName = input("Enter your last name: ")
         email = input("Enter your email: ")
