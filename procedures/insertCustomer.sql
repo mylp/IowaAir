@@ -17,6 +17,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCustomer`(
 BEGIN
 
 INSERT INTO customer
-VALUES (customerID, fName, lName, dob, gender, phoneNo, streetAddress, state, country, zipcode, email, username, `password`, rewardMiles);
+VALUES (0, fName, lName, dob, gender, phoneNo, streetAddress, state, country, zipcode, email, username, `password`, rewardMiles);
 END$$
 DELIMITER ;
