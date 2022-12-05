@@ -1,2 +1,3 @@
 # IowaAir
-Flight Booking Application
+
+Flight Booking Application using MySQL and Python

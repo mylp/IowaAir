@@ -9,12 +9,6 @@ mydb = mysql.connector.connect(
 
 cursor = mydb.cursor()
 
-def generateRandomPassengers():
-    pass
-
-def generateRandomFlights():
-    pass
-
 
 def bookFlight():
     round_trip = input("Is this a round trip? (y/n): ")
@@ -23,11 +17,11 @@ def bookFlight():
     departure_date = input("Enter the departure date: (yyyy/mm/dd)")
     if round_trip == 'y':
         return_date = input("Enter the return date: (yyyy/mm/dd)")
-    
     passenger_count = int(input("Enter the number of passengers: "))
-    
+
     # Need to add check for passenger count
-    flights = cursor.callproc('getFlights', (departure_city, arrival_city, departure_date, return_date, passenger_count))
+    flights = cursor.callproc('getFlights', (departure_city,
+                              arrival_city, departure_date, return_date, passenger_count))
     if flights:
         print("Available flights: ")
         for flight in flights:
@@ -37,7 +31,6 @@ def bookFlight():
         #selected = flights[selection]
 
         seatID = None
-        
 
         # Need to handle passenger seat selections
         passengers = []
@@ -51,42 +44,69 @@ def bookFlight():
             gender = input("Enter gender: (M/F)")
             country = input("Enter your country: ")
 
-            passengers.append((first_name, middle_name, last_name, email, phone, dob, gender, country))
+            passengers.append(
+                (first_name, middle_name, last_name, email, phone, dob, gender, country))
 
         for passenger in passengers:
-            cursor.callproc('getPassengerDetails', passenger)
-
-        # Passengers select a seat
-        # Sum all seat costs based on seatIDs
-        # Display total cost
+            cursor.callproc('insertPassenger', passenger)
 
         totalCost = None
+        fName = input("Enter your first name: ")
+        lName = input("Enter your last name: ")
+        email = input("Enter your email: ")
+        phone = input("Enter your phone number: ")
+        dob = input("Enter your date of birth: (yyyy/mm/dd)")
+        billing = input("Enter your billing address: ")
         ccNo = input("Enter your credit card number: ")
         ccExp = input("Enter your credit card expiration date: (yyyy/mm/dd)")
         cardType = input("Enter your credit card type: ")
         ccCVV = input("Enter your credit card CVV: ")
-        customerID = None
 
-        # Assuming this returns transaction ID
-        transaction = cursor.callproc('createTransaction', (0, totalCost, ccNo, ccExp, cardType, ccCVV, customerID))
-    
-        cursor.callproc('updateBookingWithTransaction', (transaction))
+        customerID = cursor.callproc(  # Assume this returns passenger ID
+            'insertCustomer', (fName, lName, email, phone, dob, billing, ccNo, ccExp, cardType, ccCVV))
+
+        transaction = cursor.callproc(  # Assume this returns tranasction ID
+            'createTransaction', (0, totalCost, ccNo, ccExp, cardType, ccCVV, customerID))
+
+        cursor.callproc('updateBookingWithTransaction', transaction)
 
         confirmation = None
         print("Your confirmation number is: ", confirmation)
 
     else:
         print("No flights available")
-
-def manageTrip(passenger_id):
-    cursor.callproc('manageTrip', (passenger_id))
-
-# Need support for checking flight status with flight id
+        bookFlight()
 
 
-def checkFlightStatus(departure_city, arrival_city, departure_date):
-    cursor.callproc('checkFlightStatus',
-                    (departure_city, arrival_city, departure_date))
+def manageTrip():
+    print("1. Cancel flight")
+    print("2. Check-in")
+    print("3. Exit\n")
+    print("Please enter your choice: ", end="")
+    choice = int(input())
+    match choice:
+        case 1:
+            print("Please enter the transaction ID to cancel a flight")
+            transID = int(input())
+            # Get all bookings with the transID
+            # Get all passengers with the bookingID
+            # Get all seatIDs with passengerID
+            # Unmark all seats with seatIDs
+            # Locate and delete all bookings with the given transaction ID
+            cancellation = cursor.callproc('cancelFlight', transID)
+            if cancellation:
+                print("Successfully cancelled flight.")
+        case 2:
+            pass
+        case 3:
+            pass
+
+
+def checkFlightStatus():
+    print("Enter your flight ID to check the status: ", end="")
+    flightID = int(input())
+    status = cursor.callproc('getFlightStatus', flightID)
+    print("Flight status: ", status)
 
 
 def displayScreen():
