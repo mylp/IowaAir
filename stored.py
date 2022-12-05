@@ -24,16 +24,22 @@ def bookFlight():
         return_date = input("Enter the return date: (yyyy/mm/dd)")
     passenger_count = int(input("Enter the number of passengers: "))
 
-    # Need to add check for passenger count
+    # Get all flights that match and have seats available
     flights = cursor.callproc('getFlights', (departure_city,
                               arrival_city, departure_date, return_date, passenger_count))
+
+    # Get all return flights that match and have seats available
+    #return_flights = cursor.callproc('getReturnFlights', (departure_city,
+    #                                      arrival_city, departure_date, return_date, passenger_count))
+    
     if flights:
         print("Available flights: ")
         for flight in flights:
             print(flight)
 
-        selection = input("Enter the flight ID you want to book: ")
-        #selected = flights[selection]
+        # Need to handle the case with return flights
+        selection = int(input("Enter the flight ID you want to book: "))
+        selected = flights[selection]
 
         seatID = None
 
@@ -58,6 +64,7 @@ def bookFlight():
         # Need to handle seat selection
         seats = []
 
+        # Split this to separate transaction function
         totalCost = calculateCost(seats)
         fName = input("Enter your first name: ")
         lName = input("Enter your last name: ")
