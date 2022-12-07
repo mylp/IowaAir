@@ -6,9 +6,7 @@ mydb = mysql.connector.connect(
     password="PepeSilvia1259#12!",
     database="mydb"
 )
-
 cursor = mydb.cursor()
-
 
 def calculateCost(seats):
     cost = 0
@@ -18,7 +16,8 @@ def calculateCost(seats):
 
 
 def create_transaction(seats, return_seats):
-    totalCost = calculateCost(seats) + calculateCost(return_seats)
+    totalCost = calculateCost(seats+return_seats)
+    print("Total cost: ", totalCost)
     fName = input("Enter your first name: ")
     lName = input("Enter your last name: ")
     email = input("Enter your email: ")
@@ -39,6 +38,22 @@ def create_transaction(seats, return_seats):
     return transaction
 
 
+def getPassengerInfo(pcount):
+    passengers = []
+    for _ in range(pcount):
+        first_name = input("Enter your first name: ")
+        middle_name = input("Enter your middle name: ")
+        last_name = input("Enter your last name: ")
+        email = input("Enter your email: ")
+        phone = input("Enter your phone number: ")
+        dob = input("Enter your date of birth: (yyyy/mm/dd)")
+        gender = input("Enter gender: (M/F)")
+        country = input("Enter your country: ")
+        passengers.append((first_name, middle_name, last_name,
+                          email, phone, dob, gender, country))
+    return passengers
+
+
 def bookFlight():
     round_trip = input("Is this a round trip? (y/n): ")
     departure_city = input("Enter the departure city: ")
@@ -49,36 +64,34 @@ def bookFlight():
     passenger_count = int(input("Enter the number of passengers: "))
 
     # Get all flights that match and have seats available
-    flights = cursor.callproc('getFlights',(departure_city,
+    flights = cursor.callproc('getFlights', (departure_city,
                               arrival_city, departure_date, return_date, passenger_count))
 
     # Get all return flights that match and have seats available
     return_flights = cursor.callproc('getReturnFlights', (arrival_city,
                                                           departure_city, return_date, departure_date, passenger_count))
-
+    # What if there are no return flights?
+    # What if there are no flights?
     if flights and return_flights:
         print("Available departure flights: ")
         for flight in flights:
             print(flight)
-        depart_flight = int(input("Enter the departure flight ID you want to book: "))
+        depart_flight = int(
+            input("Enter the departure flight ID you want to book: "))
+        
         print("Available return flights: ")
         for flight in return_flights:
             print(flight)
-        return_flight = int(input("Enter the return flight ID you want to book: "))
+        return_flight = int(
+            input("Enter the return flight ID you want to book: "))
+
+        passengers = getPassengerInfo(passenger_count)
 
         # Need to handle passenger seat selections
-        passengers = []
-        for _ in range(passenger_count):
-            first_name = input("Enter your first name: ")
-            middle_name = input("Enter your middle name: ")
-            last_name = input("Enter your last name: ")
-            email = input("Enter your email: ")
-            phone = input("Enter your phone number: ")
-            dob = input("Enter your date of birth: (yyyy/mm/dd)")
-            gender = input("Enter gender: (M/F)")
-            country = input("Enter your country: ")
-
-            print("Select your seat: ")
+        for passenger in passengers:
+            
+            # Need to make sure the seat is available
+            print("Select the depart seat: ")
             # Get all seats for the flight
             seats = cursor.callproc('getSeats', depart_flight)
             for seat in seats:
@@ -86,8 +99,15 @@ def bookFlight():
             seatID = int(input("Enter the seat ID you want to book: "))
             # Mark seat as taken
             cursor.callproc('markSeatTaken', seatID)
-
-            passengers.append((first_name))
+            
+            print("Select the return seat: ")
+            # Get all seats for the flight
+            seats = cursor.callproc('getSeats', return_flight)
+            for seat in seats:
+                print(seat)
+            seatID = int(input("Enter the seat ID you want to book: "))
+            # Mark seat as taken
+            cursor.callproc('markSeatTaken', seatID)
 
         # What about seat selection?
         for passenger in passengers:
@@ -98,9 +118,7 @@ def bookFlight():
 
         transaction = create_transaction(seats, return_seats)
         cursor.callproc('updateBookingWithTransaction', transaction)
-
-        confirmation = None
-        print("Your confirmation number is: ", confirmation)
+        print("Your transaction number is: ", transaction)
 
     else:
         print("No flights available")
@@ -117,18 +135,9 @@ def manageTrip():
         case 1:
             print("Please enter the transaction ID to cancel a flight")
             transID = int(input())
-            # Get all bookings with the transID
-            # Get all passengers with the bookingID
-            # Get all seatIDs with passengerID
-            # Unmark all seats with seatIDs
-            # Locate and delete all bookings with the given transaction ID
             cancellation = cursor.callproc('cancelFlight', transID)
             if cancellation:
                 print("Successfully cancelled flight.")
-        case 2:
-            pass
-        case 3:
-            pass
 
 
 def checkFlightStatus():
