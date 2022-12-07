@@ -107,7 +107,7 @@ def bookFlight():
                 print(seat)
             seatID = int(input("Enter the seat ID you want to book: "))
             # Mark seat as taken
-            cursor.callproc('markSeatTaken', seatID)
+            cursor.callproc('markSeat', seatID, 1)
 
         # What about seat selection?
         for passenger in passengers:
@@ -136,6 +136,9 @@ def manageTrip():
             print("Please enter the transaction ID to cancel a flight")
             transID = int(input())
             cancellation = cursor.callproc('cancelFlight', transID)
+            seats = [] # Get seats from transaction
+            for seatID in seats:
+                cursor.callproc('markSeat', seatID, 0)
             if cancellation:
                 print("Successfully cancelled flight.")
 
