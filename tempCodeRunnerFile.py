@@ -1,2 +1,2 @@
 
-def generateRandomPassengers():
+                seats_available.remove(seatID)
