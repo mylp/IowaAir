@@ -55,8 +55,6 @@ def getPassengerInfo(pcount):
         first_name = input("Enter your first name: ")
         middle_name = input("Enter your middle name: ")
         last_name = input("Enter your last name: ")
-        email = input("Enter your email: ")
-        phone = input("Enter your phone number: ")
         dob = input("Enter your date of birth (yyyy-mm-dd): ")
         gender = input("Enter gender (M/F): ")
         country = input("Enter your country: ")
