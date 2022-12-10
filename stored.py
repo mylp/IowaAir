@@ -163,9 +163,11 @@ def bookFlight():
         
         for seatID in seat_selection:
             cursor.callproc('mark_seat', (seatID, 1))
+        cursor.callproc('update_passenger_count', (depart_flight_id, len(passengers)))
 
         for seatID in return_seat_selection:
             cursor.callproc('mark_seat', (seatID, 1))
+        cursor.callproc('update_passenger_count', (return_flight_id, len(passengers)))
 
     else:
         print("No flights available")
@@ -181,21 +183,31 @@ def manageTrip():
     match choice:
         case 1:
             print("Please enter the transaction ID to cancel a flight")
-            transID = int(input())
-            cancellation = cursor.callproc('cancelFlight', transID)
-            seats = [] # Get seats from transaction
-            for seatID in seats:
-                cursor.callproc('markSeat', seatID, 0)
-            if cancellation:
-                print("Successfully cancelled flight.")
+            transactionID = int(input())
+            cursor.callproc('cancel_flight', transactionID)
+            print("Flight cancelled")
 
 
 def checkFlightStatus():
     print("Enter your flight ID to check the status: ", end="")
     flightID = int(input())
-    status = cursor.callproc('getFlightStatus', flightID)
-    print("Flight status: ", status)
-
+    cursor.callproc('check_flight_status', (flightID,))
+    printThese = []
+    for result in cursor.stored_results():
+        tup = result.fetchall()
+        for x in tup:
+            printThese.append(x)
+    print("Depart Date: " + str(printThese[0][0]) + "\n"
+        + "Arrival Date: " + str(printThese[0][1]) + "\n"
+        + "Aircraft ID: " + str(printThese[0][2]))
+        
+    cursor.callproc('get_airport', (flightID,))
+    printThese = []
+    for result in cursor.stored_results():
+        tup = result.fetchall()
+        for x in tup:
+            printThese.append(x)
+    print("Depart Airport: " + str(printThese[0][0]) + "\n" + "Arrival Airport: " + str(printThese[1][0]))
 
 def displayScreen():
     print("------------------------------------")
@@ -221,10 +233,7 @@ def main():
             passenger = input("Enter your passenger id: ")
             manageTrip(passenger)
         elif choice == 3:
-            departure = input("Enter the departure city: ")
-            arrival = input("Enter the arrival city: ")
-            date = input("Enter the departure date (yyyy-mm-dd): ")
-            checkFlightStatus(departure, arrival, date)
+            checkFlightStatus()
         else:
             print("Invalid choice")
         choice = displayScreen()
