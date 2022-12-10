@@ -182,9 +182,9 @@ def manageTrip():
     choice = int(input())
     match choice:
         case 1:
-            print("Please enter the transaction ID to cancel a flight")
+            print("Please enter the transaction ID to cancel a flight:")
             transactionID = int(input())
-            cursor.callproc('cancel_flight', transactionID)
+            cursor.callproc('cancel_flight', (transactionID,))
             print("Flight cancelled")
 
 
@@ -230,8 +230,7 @@ def main():
         if choice == 1:
             bookFlight()
         elif choice == 2:
-            passenger = input("Enter your passenger id: ")
-            manageTrip(passenger)
+            manageTrip()
         elif choice == 3:
             checkFlightStatus()
         else:
